@@ -30,7 +30,14 @@ int main(int argc, char **argv)
 {
 	const char *user = argc > 1 ? argv[1] : "root";
 
-	for (int round = 0; round < 500; round++) {
+	// Default value
+	int max_round = 500;
+	// If an argument is provided, convert it to integer
+	if (argc >= 3) {
+		max_round = atoi(argv[2]);
+	}
+
+	for (int round = 0; round < max_round; round++) {
 		pid_t c = fork();
 		if (c == 0) {
 			int dn = open("/dev/null", O_RDWR);
@@ -73,6 +80,6 @@ int main(int argc, char **argv)
 		close(pfd);
 		waitpid(c, NULL, 0);
 	}
-	fprintf(stderr, "no hit in 500 rounds\n");
+	fprintf(stderr, "no hit in %d rounds\n", max_round);
 	return 1;
 }

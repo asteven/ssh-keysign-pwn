@@ -43,15 +43,22 @@ static const char *PATHS[] = {
 	NULL,
 };
 
-int main(void)
+int main(int argc, char **argv)
 {
 	const char *bin = NULL;
 	for (int i = 0; PATHS[i]; i++)
 		if (access(PATHS[i], X_OK) == 0) { bin = PATHS[i]; break; }
 	if (!bin) { fprintf(stderr, "ssh-keysign not found\n"); return 1; }
-	fprintf(stderr, "uid=%d  target=%s\n", getuid(), bin);
+	// Default value
+	int max_round = 500;
+	// If an argument is provided, convert it to integer
+	if (argc >= 2) {
+		max_round = atoi(argv[1]);
+	}
 
-	for (int round = 0; round < 500; round++) {
+	fprintf(stderr, "uid=%d  target=%s rounds=%d \n", getuid(), bin, max_round);
+
+	for (int round = 0; round < max_round; round++) {
 		pid_t c = fork();
 		if (c == 0) {
 			int dn = open("/dev/null", O_RDWR);
@@ -93,6 +100,6 @@ int main(void)
 		if (hit) return 0;
 	}
 
-	fprintf(stderr, "no hit in 500 rounds\n");
+	fprintf(stderr, "no hit in %d rounds\n", max_round);
 	return 1;
 }
